@@ -17,6 +17,6 @@ And you should create 'students.txt', refer 'student-example.txt'
 ## Result like this...
 
 - This project permit you can check your student's BOJ homework.
-- Like lower image, 'result.csv' will be print.
+- Like lower image, 'result.csv' will be printed.
 
 <img src="_readme/result.png" style="zoom:50%;" />
