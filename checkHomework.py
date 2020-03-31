@@ -51,6 +51,7 @@ async def main():
     ids = []
 
     f = open("students.txt", 'r', -1, 'utf-8')
+    csv = open("result.csv", "w");
     for line in f.readlines():
         str = line.strip()
         arr = str.split()
@@ -67,19 +68,26 @@ async def main():
     print("Current Time : {}".format(datetime.datetime.now()))
     homeworkCodes = [2557, 10718, 10171, 10172, 1000, 1001, 10998, 1008, 10869, 10430, 2588]
     print("{:22}".format("Name(ID)"), end="")
+    print("{}".format("Name,ID,"), end="", file=csv)
     for code in homeworkCodes:
         print("{:>10}".format(f"{code}"), end=",")
+        print(f"{code}", end=",", file=csv)
     print()
+    print(file=csv)
 
     for user in userDict:
         print("{:20}".format(f"{nameDict[user]}({user})"), end="")
+        print(f"{nameDict[user]},{user},", end="", file=csv)
         for code in homeworkCodes:
             didSuccess = userDict[user].didSuccess(code)
             if didSuccess:
                 print("{:>10}".format("⭕️"), end=",")
+                print("⭕", end=",", file=csv)
             else:
                 print("{:>9}".format("❌"), end=",")
+                print("❌", end=",", file=csv)
         print()
-
+        print(file=csv)
+    csv.close()
 
 asyncio.get_event_loop().run_until_complete(main())
