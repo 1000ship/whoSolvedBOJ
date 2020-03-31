@@ -1,0 +1,7 @@
+천성혁 cjstjdgur123
+최백준 baekjoon
+테스터 tester
+end
+
+# 위 처럼 (이름 아이디)를 입력해야함.
+# end를 만나면 끝나므로 마지막에 end를 필히 넣어줄 것.
