@@ -11,7 +11,7 @@ Before run this code, you have to install these python module
  - requests
 
 And you should create 'students.txt', refer 'student-example.txt'
-
+Also you should modify 'homeworkCodes.txt' what you want to check.
 
 
 ## Result like this...

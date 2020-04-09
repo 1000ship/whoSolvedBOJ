@@ -66,7 +66,9 @@ async def main():
     userDict = await getUserDict(ids)
 
     print("Current Time : {}".format(datetime.datetime.now()))
-    homeworkCodes = [2557, 10718, 10171, 10172, 1000, 1001, 10998, 1008, 10869, 10430, 2588]
+    homeworkCodeFile = open("homeworkCodes.txt", "r", -1, 'utf-8')
+    homeworkCodes = [ int(code.strip()) for code in homeworkCodeFile.readlines() ]
+    print(homeworkCodes)
     print("{:22}".format("Name(ID)"), end="")
     print("{}".format("Name,ID,"), end="", file=csv)
     for code in homeworkCodes:
