@@ -2,7 +2,7 @@
 
 You can run two of python file.
 - check.py : for just checking homework whether students solved problems.
-- checkWithExpiryDate.py : for checking homework, plus, checking if students sovled problem before expiry date or used specific language... etc
+- checkWithOption.py : for checking homework, plus, checking if students sovled problem before expiry date or used specific language... etc
 ( checkWithOption will be spent more time than check.py )
 
 ## Before you use this...
@@ -12,6 +12,7 @@ Before run this code, you have to install these python module
  - asyncio
  - bs4
  - requests
+ - selenium ( if you want to run 'checkWithOption.py' )
 
 And you should create 'students.txt', refer 'student-example.txt'
 Also you should modify 'homeworkCodes.txt' what you want to check.
