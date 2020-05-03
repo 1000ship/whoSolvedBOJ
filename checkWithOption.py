@@ -2,74 +2,52 @@ import asyncio
 import requests
 from bs4 import BeautifulSoup, PageElement
 import datetime
+import BOJ
+from selenium import webdriver
+from EnumerationBOJ import ResultID, LanguageID
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
+driver = webdriver.Chrome("driver/chromedriver")
 
-class User(object):
-    def __init__(self, success_list, fail_list):
-        self.success_list = success_list
-        self.fail_list = fail_list
-
-    def __repr__(self):
-        return f"{len(self.success_list)} sovled"
-
-    def didSuccess(self, code):
-        if code in self.success_list:
+def callQuery( userId, problemId, resultId, languageId):
+    global driver
+    driver.get( f"https://www.acmicpc.net/status?problem_id={problemId}&user_id={userId}&language_id={languageId.value}&result_id={resultId.value}&from_problem=1")
+    try:
+        while True:
+            element = WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.CLASS_NAME, "real-time-update"))
+            )
+            bs = BeautifulSoup(driver.page_source, "html.parser")
+            a_tags = bs.find("a", {"class", "real-time-update"})
+            str = a_tags.attrs["title"] or a_tags.attrs["data-original-title"]
+            if not str:
+                input(f"NO-DATA ERROR : {str}") # 절대로 실행 안되길 바람
+                continue
+            else:
+                break
+        string_timestamps = list(map( lambda x: x.attrs["title"] or x.attrs["data-original-title"], bs.find_all("a", {"class", "real-time-update"})))
+        timestamps = list(map( lambda x: datetime.datetime.strptime(x, "%Y년 %m월 %d일 %H시 %M분 %S초"), string_timestamps ))
+        # print(f"https://www.acmicpc.net/status?problem_id={problemId}&user_id={userId}&language_id={languageId.value}&result_id={resultId.value}&from_problem=1")
+    except:
+        print("Error in callQuery")
+    expiry_datetime = datetime.datetime.strptime("2020년 5월 3일 0시 0분 0초", "%Y년 %m월 %d일 %H시 %M분 %S초")
+    for dt in timestamps:
+        if dt < expiry_datetime:
             return True
+    else:
         return False
-
-    def didFail(self, code):
-        if code in self.fail_list:
-            return True
-        return False
-
-
-async def getUserProblemHistory(id):
-    res = requests.get(f"https://www.acmicpc.net/user/{id}")
-    bs = BeautifulSoup(res.content, "html.parser")
-    success_panel, fail_panel = bs.find_all("div", {"class": "panel"})
-    success_body = success_panel.find("div", {"class": "panel-body"})
-    success_spans = success_body.find_all("span", {"class", "problem_number"})
-    success_numbers = [int(item.text) for item in success_spans]  # 성공한 문제 코드들
-    fail_body = fail_panel.find("div", {"class": "panel-body"})
-    fail_spans = fail_body.find_all("span", {"class", "problem_number"})
-    fail_numbers = [int(item.text) for item in fail_spans]  # 실패한 문제 코드들
-    print(f"{id} loaded")
-    return (success_numbers, fail_numbers)
-
-
-async def getUserDict(ids):
-    historyDict = {}
-    futures = [asyncio.ensure_future(getUserProblemHistory(id)) for id in ids]
-    result = await asyncio.gather(*futures)
-    for i in range(len(ids)):
-        historyDict[ids[i]] = User(*result[i])
-    return historyDict
-
 
 async def main():
-    nameDict = {}
-    ids = []
+    students = BOJ.getStudents()
+    homeworkCodes = BOJ.getHomeworkCodes()
 
     csv = open("result.csv", "w");
 
-    f = open("students.txt", 'r', -1, 'utf-8')
-    for line in f.readlines():
-        str = line.strip()
-        arr = str.split()
-        if arr[0] == 'end':
-            break
-        nameDict[arr[1]] = arr[0]
-        ids += [arr[1]]
-    f.close()
-
-    print(f"{len(ids)} students")
-    # ids = ["cjstjdgur123", "baekjoon", "test"]
-    userDict = await getUserDict(ids)
-
+    # print status and data on log and csv files
+    print(f"{len(students)} students find")
     print("Current Time : {}".format(datetime.datetime.now()))
-    homeworkCodeFile = open("homeworkCodes.txt", "r", -1, 'utf-8')
-    homeworkCodes = [ int(code.strip()) for code in homeworkCodeFile.readlines() ]
-    print(homeworkCodes)
     print("{:22}".format("Name(ID)"), end="")
     print("{}".format("Name,ID,"), end="", file=csv)
     for code in homeworkCodes:
@@ -77,20 +55,25 @@ async def main():
         print(f"{code}", end=",", file=csv)
     print()
     print(file=csv)
-
-    for user in userDict:
-        print("{:20}".format(f"{nameDict[user]}({user})"), end="")
-        print(f"{nameDict[user]},{user},", end="", file=csv)
+    for student in students:
+        print("{:20}".format(f"{student.name}({student.id})"), end="")
+        print(f"{student.name},{student.id},", end="", file=csv)
         for code in homeworkCodes:
-            didSuccess = userDict[user].didSuccess(code)
+            didSuccess = student.didSuccess(code)
             if didSuccess:
-                print("{:>10}".format("⭕️"), end=",")
-                print("⭕", end=",", file=csv)
+                expirySuccess = callQuery(student.id, code, ResultID.SUCCESS, LanguageID.Python3)
+                if expirySuccess:
+                    print("{:>10}".format("⭕️"), end=",")
+                    print("⭕", end=",", file=csv)
+                else:
+                    print("{:>10}".format("❗️️"), end=",")
+                    print("❗️", end=",", file=csv)
             else:
                 print("{:>9}".format("❌"), end=",")
                 print("❌", end=",", file=csv)
         print()
         print(file=csv)
     csv.close()
+    # end print
 
 asyncio.get_event_loop().run_until_complete(main())
