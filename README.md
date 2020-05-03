@@ -2,8 +2,8 @@
 
 You can run two of python file.
 - check.py : for just checking homework whether students solved problems.
-- checkWithExpiryDate.py : for checking homework, plus, checking if students sovled problem before expiry date.
-( checkWithExpiryDate will be spent more time than check.py )
+- checkWithExpiryDate.py : for checking homework, plus, checking if students sovled problem before expiry date or used specific language... etc
+( checkWithOption will be spent more time than check.py )
 
 ## Before you use this...
 
